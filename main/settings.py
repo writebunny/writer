@@ -1,5 +1,5 @@
 """
-Django settings for scaffold project.
+Django settings for WriteBunny project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -21,11 +21,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 from .boot import get_app_config
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_app_config().secret_key
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-TEMPLATE_DEBUG = True
 
 # Application definition
 
@@ -71,10 +66,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 def check_session_csrf_enabled():
-    if "session_csrf.CsrfMiddleware" not in MIDDLEWARE_CLASSES:
-        return [ "SESSION_CSRF_DISABLED"]
-
-    return []
+  if "session_csrf.CsrfMiddleware" not in MIDDLEWARE_CLASSES:
+      return [ "SESSION_CSRF_DISABLED"]
+  return []
 check_session_csrf_enabled.messages = { "SESSION_CSRF_DISABLED" : "Please add 'session_csrf.CsrfMiddleware' to MIDDLEWARE_CLASSES" }
 
 SECURE_CHECKS = [
@@ -84,12 +78,12 @@ SECURE_CHECKS = [
     "djangosecure.check.djangosecure.check_sts",
     "djangosecure.check.djangosecure.check_frame_deny",
     "djangosecure.check.djangosecure.check_ssl_redirect",
-    "scaffold.settings.check_session_csrf_enabled"
+    "main.settings.check_session_csrf_enabled"
 ]
 
-ROOT_URLCONF = 'scaffold.urls'
+ROOT_URLCONF = 'main.urls'
 
-WSGI_APPLICATION = 'scaffold.wsgi.application'
+WSGI_APPLICATION = 'main.wsgi.application'
 
 
 # Internationalization
@@ -110,10 +104,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
-
-
-if DEBUG:
-    CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
 
 AUTH_USER_MODEL = 'djangae.GaeDatastoreUser'
 

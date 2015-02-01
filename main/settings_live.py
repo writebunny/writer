@@ -1,4 +1,4 @@
-from scaffold.settings import *
+from main.settings import *
 
 SESSION_COOKIE_SECURE = True
 SECURE_HSTS_SECONDS = 2592000 #30 days
@@ -17,3 +17,8 @@ SECURE_REDIRECT_EXEMPT = [
 
 DEBUG = False
 TEMPLATE_DEBUG = False
+
+# OAuth2
+OAUTH2_CLIENT_SECRET_FILE = os.path.join(
+    BASE_DIR, 'main', 'client_secret_live.json')
+OAUTH2_REDIRECT_URI = 'https://writebunny-prod.appspot.com/oauth2callback'

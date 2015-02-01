@@ -7,7 +7,7 @@ threadsafe: true
 handlers:
 
 - url: /_ah/(mapreduce|queue|warmup).*
-  script: scaffold.wsgi.application
+  script: main.wsgi.application
   login: admin
   secure: always
 
@@ -17,12 +17,12 @@ handlers:
 
 # Set Django admin to be login:admin as well as Django's is_staff restriction
 - url: /admin.*
-  script: scaffold.wsgi.application
+  script: main.wsgi.application
   secure: always
   login: admin
 
 - url: /.*
-  script: scaffold.wsgi.application
+  script: main.wsgi.application
   secure: always
 
 skip_files:
