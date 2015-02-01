@@ -8,17 +8,11 @@ User = get_user_model()
 
 class Flow(models.Model):
   """OAuth2 flow model."""
-  user = models.OneToOneField(User, related_name='flow')
+  user = models.OneToOneField(User, primary_key=True)
   flow = django_orm.FlowField()
-
-  class Djangae:
-    disable_constraint_checks = True
 
 
 class Credential(models.Model):
   """OAuth2 Credential model."""
-  user = models.OneToOneField(User, related_name='credentials')
+  user = models.OneToOneField(User, primary_key=True)
   credentials = django_orm.CredentialsField()
-
-  class Djangae:
-    disable_constraint_checks = True
