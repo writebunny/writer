@@ -12,39 +12,41 @@ from oauth2client.django_orm import Storage
 from writer import models
 
 
-def inject_service(method):
+def inject_service(*service_args):
   """Decorator to inject authenticated service into the API call."""
-  def inner(self, **kwargs):
-    user = kwargs.pop('user')
-    service = self._service(user)
-    if service:
-      kwargs['service'] = service
-      try:
-        return method(self, **kwargs)
-      except AccessTokenRefreshError:
-        pass
-  return inner
+  def wrap(func):
+    def wrapped_func(*args, **kwargs):
+      user = args[1]
+      service = get_service(user, *service_args)
+      if service:
+        kwargs['service'] = service
+        try:
+          return func(*args, **kwargs)
+        except AccessTokenRefreshError:
+          pass
+    return wrapped_func
+  return wrap
+
+
+def get_service(user, *path_args):
+  """Return authenicated API service."""
+  storage = Storage(models.Credential, 'user', user, 'credentials')
+  credentials = storage.get()
+  if not credentials or credentials.invalid:
+    return
+  http = httplib2.Http()
+  http = credentials.authorize(http)
+  return discovery.build(*path_args, http=http)
 
 
 class ApiWrapper(object):
-  SCOPE_URI = None
-  SERVICE_ARGS = None
-
-  def _service(self, user):
-    """Return authenicated API service."""
-    storage = Storage(models.Credential, 'user', user, 'credentials')
-    credentials = storage.get()
-    if not credentials or credentials.invalid:
-      return
-    http = httplib2.Http()
-    http = credentials.authorize(http)
-    return discovery.build(*self.SERVICE_ARGS, http=http)
+  SCOPES = None
 
   def get_authorize_url(self, user):
     flow = flow_from_clientsecrets(
         settings.OAUTH2_CLIENT_SECRET_FILE,
         redirect_uri=settings.OAUTH2_REDIRECT_URI,
-        scope=self.SCOPE_URI)
+        scope=self.SCOPES)
     flow.params['state'] = xsrfutil.generate_token(settings.SECRET_KEY, user)
     # store per-user flow objects before the first redirection
     storage = Storage(models.Flow, 'user', user, 'flow')
@@ -69,18 +71,3 @@ class ApiWrapper(object):
       storage.put(credentials)
 
       return True
-
-
-class GoogleCalendar(ApiWrapper):
-  SCOPE_URI = 'https://www.googleapis.com/auth/calendar'
-  SERVICE_ARGS = ('calendar', 'v3')
-
-  @inject_service
-  def event_insert(self, service, summary, location, start, end, description):
-    return service.events().insert(calendarId='primary', body={
-        'summary': summary,
-        'location': location,
-        'start': {'date': start.isoformat()},
-        'end': {'date': end.isoformat()},
-        'description': description,
-    }).execute()

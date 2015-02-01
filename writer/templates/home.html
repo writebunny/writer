@@ -4,7 +4,7 @@ Hello world!
     user: {{ user.email }}
 </div>
 
-<div>
-  <a href="/calendar/">calendar</a>
-  <a href="/add_event/">add event</a>
-</div>
+<ul>
+  <li><a href="{% url 'add_event' %}">add event</a></li>
+  <li><a href="{% url 'list_files' %}">list files</a></li>
+</ul>

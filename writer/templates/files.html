@@ -1,0 +1,10 @@
+<ul>
+  <li><a href="{% url 'add_file' %}">add file</a></li>
+</ul>
+
+
+<ul>
+  {% for item in files.items %}
+    <li>{{ item.title }}</li>
+  {% endfor %}
+</ul>
