@@ -19,6 +19,6 @@ DEBUG = False
 TEMPLATE_DEBUG = False
 
 # OAuth2
-OAUTH2_CLIENT_SECRET_FILE = os.path.join(
-    BASE_DIR, 'main', 'client_secret_live.json')
+OAUTH2_CLIENT_ID = '788616750454-3o8tc8d8ebp6r3r10q5faetkdnrqtbg8.apps.googleusercontent.com'
+OAUTH2_CLIENT_SECRET_FILE = os.path.join(BASE_DIR, 'main', 'client_secret_live.json')
 OAUTH2_REDIRECT_URI = 'https://writebunny-prod.appspot.com/oauth2callback'

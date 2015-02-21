@@ -37,3 +37,20 @@ class GoogleDrive(GoogleAPI):
   @inject_service('drive', 'v2')
   def files_list(self, user, service):
     return service.files().list().execute()
+
+  @inject_service('drive', 'v2')
+  def files_update(self, user, service, file_id, description):
+    return service.files().update(fileId=file_id, body={
+        'description': description,
+    }).execute()
+
+  @inject_service('drive', 'v2')
+  def comments_insert(self, user, service, file_id, content):
+    return service.comments().insert(fileId=file_id, body={
+        'content': content,
+    }).execute()
+
+  @inject_service('drive', 'v2')
+  def comments_list(self, user, service, file_id):
+    comments = service.comments().list(fileId=file_id).execute()
+    return comments.get('items', [])

@@ -7,7 +7,9 @@ git push -u origin master
 * Add the following line to /etc/hosts
     `127.0.0.1       dev.writebunny.com`
 
-
 ## Google API references
 * https://developers.google.com/drive/web/
 * https://developers.google.com/google-apps/calendar/
+
+## Deploy
+appcfg.py update ./

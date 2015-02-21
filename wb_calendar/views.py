@@ -1,4 +1,5 @@
 import datetime
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -7,6 +8,7 @@ from writer.decorators import credentials_required
 from writer.google import GoogleCalendar
 
 
+@login_required
 @credentials_required
 def add_event(request):
   GoogleCalendar().events_insert(
