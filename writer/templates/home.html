@@ -1,10 +1,6 @@
-Hello world!
+{% extends "base.html" %}
 
-<div>
-    user: {{ user.email }}
-</div>
 
-<ul>
-  <li><a href="{% url 'add_event' %}">add event</a></li>
-  <li><a href="{% url 'list_files' %}">list files</a></li>
-</ul>
+{% block content %}
+  Home page
+{% endblock %}

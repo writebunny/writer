@@ -1,5 +1,6 @@
 """OAuth2 wrapper for WriteBunny."""
 import httplib2
+import logging
 
 from django.conf import settings
 from googleapiclient import discovery
@@ -56,6 +57,10 @@ class ApiWrapper(object):
 
   def validate_token(self, user, data):
     """Handle callback from authentication service and store token."""
+    logging.info('OAuth2 validating token for {}'.format(user.email))
+    if user.is_anonymous():
+      logging.warning('Can not authenicate anonymous user.')
+      return
     state = str(data['state'])  # doesn't like unicode
     if xsrfutil.validate_token(settings.SECRET_KEY, state, user):
       # retrieve flow from storage
@@ -64,10 +69,12 @@ class ApiWrapper(object):
       # get and save credentials
       try:
         credentials = flow.step2_exchange(data)
-      except FlowExchangeError:
+      except FlowExchangeError as error:
         # e.g. access_denied
+        logging.warning('Flow exchange error: {}'.format(error))
         return
       storage = Storage(models.Credential, 'user', user, 'credentials')
       storage.put(credentials)
-
       return True
+    else:
+      logging.warning('Invalid token: {}'.format(state))

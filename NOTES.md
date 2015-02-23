@@ -13,3 +13,7 @@ git push -u origin master
 
 ## Deploy
 appcfg.py update ./
+
+## inotify_file_watcher.py
+Allow inotify to watch more files at once:
+echo fs.inotify.max_user_watches=100000 | sudo tee -a /etc/sysctl.conf; sudo sysctl -p

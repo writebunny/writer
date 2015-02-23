@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+  <h2>Dashboard</h2>
+
+  <ul>
+  {% for item in file_list.items %}
+    <li>
+      <a href="{{ item.alternateLink|safe }}" target="_blank">{{ item.title }}</a>
+      <div>
+        <img src="{{ item.thumbnailLink|safe }}" width="170" height="220" />
+      </div>
+      <div>
+        <img src="{{ item.iconLink|safe }}" />
+      </div>
+      <div>{{ item.description }}</div>
+      <div>{{ item.modifiedDate }}</div>
+    </li>
+  {% endfor %}
+  </ul>
+{% endblock %}
