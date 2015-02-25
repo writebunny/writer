@@ -9,12 +9,10 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'^$', 'writer.views.home', name='home'),
     url(r'^_ah/', include('djangae.urls')),
-    # url(r'^login/$', 'writer.views.login', name='login'),
-    url(r'^logout/$', 'writer.views.logout', name='logout'),
+    url(r'^api/', include('api.urls')),
     url(r'^auth/', include('djangae.contrib.gauth.urls')),
     url(r'^oauth2callback$', 'writer.views.oauth2callback'),
     url(r'^writer/', include('writer.urls')),
-
 
     url(r'^error/$', 'writer.views.error', name='error'),
 

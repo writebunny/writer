@@ -35,6 +35,8 @@ INSTALLED_APPS = (
     'csp',
     'djangae', # Djangae should be after Django core/contrib things
     'djangae.contrib.gauth',
+    'rest_framework',
+    'api',
     'writer',
 )
 
@@ -124,6 +126,28 @@ STATICFILES_FINDERS = (
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
+CSP_DEFAULT_SRC = (
+    "'self'",
+    'https://ajax.googleapis.com',
+)
+
+CSP_IMG_SRC = (
+    "'self'",
+    'https://docs.google.com/',
+    'https://ssl.gstatic.com',
+)
+
+# CSP_STYLE_SRC = (
+#     "'self'",
+#     'https://ajax.googleapis.com',
+# )
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
 
 from djangae.contrib.gauth.settings import *
-# ALLOW_USER_PRE_CREATION = True

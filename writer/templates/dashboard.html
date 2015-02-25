@@ -1,8 +1,29 @@
 {% extends "base.html" %}
 
 
+{% block body_tag %}<body ng-controller="DashboardCtrl">{% endblock %}
+
+
 {% block content %}
   <h2>Dashboard</h2>
+
+  [[books]]
+
+  <form name="bookForm">
+    <md-input-container>
+      <label>Title</label>
+      <input name="title" ng-model="title" required md-maxlength="100" minlength="4">
+      <div ng-messages="bookForm.title.$error" ng-show="bookForm.title.$dirty">
+        <div ng-message="required">This is required!</div>
+        <div ng-message="md-maxlength">That's too long!</div>
+        <div ng-message="minlength">That's too short!</div>
+      </div>
+    </md-input-container>
+  </form>
+
+
+
+
 
   <ul>
   {% for item in file_list.items %}
