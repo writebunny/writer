@@ -21,6 +21,7 @@ class Credential(models.Model):
 class Book(models.Model):
   user = models.ForeignKey(User, related_name='books')
   title = models.CharField(max_length=100, unique=True)
+  description = models.CharField(max_length=255, blank=True)
   created = models.DateTimeField(auto_now_add=True)
 
   class Meta:

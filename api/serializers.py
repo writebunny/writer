@@ -7,7 +7,7 @@ from writer import models
 class Book(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = models.Book
-    fields = ('url', 'title', 'created')
+    fields = ('url', 'id', 'title', 'description', 'created')
 
 
 class User(serializers.HyperlinkedModelSerializer):

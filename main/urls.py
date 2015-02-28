@@ -1,9 +1,7 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-import session_csrf
 
-session_csrf.monkeypatch()
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -15,7 +13,6 @@ urlpatterns = patterns('',
     url(r'^writer/', include('writer.urls')),
 
     url(r'^error/$', 'writer.views.error', name='error'),
-
 
 
     # Note that by default this is also locked down with login:admin in app.yaml

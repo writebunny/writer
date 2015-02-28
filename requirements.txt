@@ -2,7 +2,6 @@ git+https://github.com/potatolondon/djangae.git#egg=djangae
 django>=1.6.10,<1.7
 django-secure
 django-csp
-django-session-csrf
 nose
 google-api-python-client
 

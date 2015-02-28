@@ -48,26 +48,20 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'csp.middleware.CSPMiddleware',
-    'session_csrf.CsrfMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'djangosecure.middleware.SecurityMiddleware',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    "session_csrf.context_processor"
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.csrf',
 )
-
-def check_session_csrf_enabled():
-  if "session_csrf.CsrfMiddleware" not in MIDDLEWARE_CLASSES:
-      return [ "SESSION_CSRF_DISABLED"]
-  return []
-check_session_csrf_enabled.messages = { "SESSION_CSRF_DISABLED" : "Please add 'session_csrf.CsrfMiddleware' to MIDDLEWARE_CLASSES" }
 
 SECURE_CHECKS = [
     "djangosecure.check.sessions.check_session_cookie_secure",
@@ -76,7 +70,6 @@ SECURE_CHECKS = [
     "djangosecure.check.djangosecure.check_sts",
     "djangosecure.check.djangosecure.check_frame_deny",
     "djangosecure.check.djangosecure.check_ssl_redirect",
-    "main.settings.check_session_csrf_enabled"
 ]
 
 ROOT_URLCONF = 'main.urls'

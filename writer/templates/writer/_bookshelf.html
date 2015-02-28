@@ -1,0 +1,37 @@
+{% load static %}
+<md-content class="md-padding" ng-show="dsp.bookshelf">
+  <md-list>
+    <md-item ng-repeat="item in books" ng-click="editBook(item)">
+      <md-item-content>
+        <div class="md-tile-left">
+          <img ng-src="{% static 'img/ic_book_black_36dp.png' %}">
+        </div>
+        <div class="md-tile-content">
+          <h3>[[ item.title ]]</h3>
+          <p>[[ item.description ]]</p>
+        </div>
+      </md-item-content>
+    </md-item>
+  </md-list>
+
+  <md-button class="md-raised md-primary" ng-click="newBook()">
+    New Book
+  </md-button>
+</md-content>
+
+
+<ul>
+{% for item in file_list.items %}
+  <li>
+    <a href="{{ item.alternateLink|safe }}" target="_blank">{{ item.title }}</a>
+    <div>
+      <img src="{{ item.thumbnailLink|safe }}" width="170" height="220" />
+    </div>
+    <div>
+      <img src="{{ item.iconLink|safe }}" />
+    </div>
+    <div>{{ item.description }}</div>
+    <div>{{ item.modifiedDate }}</div>
+  </li>
+{% endfor %}
+</ul>

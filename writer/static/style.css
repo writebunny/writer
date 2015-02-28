@@ -6,3 +6,10 @@ header nav a {
   margin: 1em;
   width: 30em;
 }
+
+.wb-book {
+  width: 10em;
+  min-height: 5em;
+  margin: 1em;
+  text-align: center;
+}

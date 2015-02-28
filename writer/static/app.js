@@ -1,4 +1,9 @@
-var app = angular.module('app', ['ngMaterial', 'ngMessages', 'ngResource']);
+var app = angular.module('app', ['ngCookies', 'ngMaterial', 'ngMessages', 'ngResource']);
+
+app.run(['$http', '$cookies', function($http, $cookies) {
+    $http.defaults.headers.post['X-CSRFToken'] = $cookies.csrftoken;
+    $http.defaults.headers.put['X-CSRFToken'] = $cookies.csrftoken;
+}]);
 
 app.config(['$interpolateProvider', function ($interpolateProvider) {
   $interpolateProvider.startSymbol('[[');
@@ -10,9 +15,8 @@ app.config(['$resourceProvider', function($resourceProvider) {
   $resourceProvider.defaults.stripTrailingSlashes = false;
 }]);
 
-app.controller('DashboardCtrl', function ($scope, $resource) {
-  var Book = $resource('/api/books/:bookId', {bookId:'@id'});
-
-  $scope.book = new Book({title: 'testing'});
-  // $scope.books = Book.query();
-});
+app.factory('Book', ['$resource', function($resource) {
+  return $resource('/api/books/:id/', {id:'@id'}, {
+    'update': { method:'PUT' }
+  });
+}]);
