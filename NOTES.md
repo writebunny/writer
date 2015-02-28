@@ -20,4 +20,7 @@ echo fs.inotify.max_user_watches=100000 | sudo tee -a /etc/sysctl.conf; sudo sys
 
 
 ## Materials
-https://material.angularjs.org/#/
+https://material.angularjs.org
+
+## Angular
+https://docs.angularjs.org/api/ngResource

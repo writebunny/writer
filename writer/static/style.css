@@ -1,3 +1,8 @@
 header nav a {
   display: inline;
 }
+
+.wb-form {
+  margin: 1em;
+  width: 30em;
+}

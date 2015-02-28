@@ -1,0 +1,22 @@
+<div class="md-whiteframe-z1 wb-form" layout="column">
+  <md-toolbar class="md-primary">
+    <h1 class="md-toolbar-tools">Book</h1>
+  </md-toolbar>
+  <md-content class="md-padding">
+    <form name="bookForm">
+      <md-input-container>
+        <label>Title</label>
+        <input name="title" ng-model="book.title" required md-maxlength="100" minlength="4">
+        <div ng-messages="bookForm.title.$error">
+          <div ng-message="required">Book needs a title.</div>
+          <div ng-message="maxlength">Title is too long!</div>
+          <div ng-message="minlength">Title is too short!</div>
+        </div>
+      </md-input-container>
+    </form>
+  </md-content>
+  <md-content class="md-padding" layout="row" layout-align="space-between center">
+    <md-button class="md-raised">Cancel</md-button>
+    <md-button class="md-raised md-primary" ng-click="book.$save()">Save</md-button>
+  </md-content>
+</div>

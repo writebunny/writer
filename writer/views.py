@@ -17,13 +17,13 @@ def home(request):
   """Public page for anonymous users."""
   if request.user.is_authenticated():
     return HttpResponseRedirect(reverse('dashboard'))
-  return render_to_response('home.html', {}, RequestContext(request))
+  return render_to_response('writer/home.html', {}, RequestContext(request))
 
 
 @login_required
 @credentials_required
 def dashboard(request):
-  return render_to_response('dashboard.html', {
+  return render_to_response('writer/dashboard.html', {
       'file_list': GoogleDrive().files_list(request.user),
   }, RequestContext(request))
 
