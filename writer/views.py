@@ -24,7 +24,7 @@ def home(request):
 @credentials_required
 def dashboard(request):
   return render_to_response('writer/dashboard.html', {
-      'file_list': GoogleDrive().files_list(request.user),
+      # 'file_list': GoogleDrive().files_list(request.user),
   }, RequestContext(request))
 
 

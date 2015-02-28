@@ -13,10 +13,6 @@ app.config(['$resourceProvider', function($resourceProvider) {
 app.controller('DashboardCtrl', function ($scope, $resource) {
   var Book = $resource('/api/books/:bookId', {bookId:'@id'});
 
-  $scope.saveBook = function() {
-    book.$save();
-  };
-
-  $scope.book = new Book({title: ''});
-  $scope.books = Book.query();
+  $scope.book = new Book({title: 'testing'});
+  // $scope.books = Book.query();
 });

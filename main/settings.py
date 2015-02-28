@@ -128,19 +128,19 @@ STATICFILES_FINDERS = (
 
 CSP_DEFAULT_SRC = (
     "'self'",
-    'https://ajax.googleapis.com',
+    'ajax.googleapis.com',
 )
 
 CSP_IMG_SRC = (
     "'self'",
-    'https://docs.google.com/',
-    'https://ssl.gstatic.com',
+    'docs.google.com',
+    'ssl.gstatic.com',
 )
 
-# CSP_STYLE_SRC = (
-#     "'self'",
-#     'https://ajax.googleapis.com',
-# )
+CSP_STYLE_SRC = (
+    "'self'",
+    'ajax.googleapis.com',
+)
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

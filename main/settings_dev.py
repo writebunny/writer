@@ -4,7 +4,7 @@ from main.settings import *
 DEBUG = True
 TEMPLATE_DEBUG = True
 
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+CSP_STYLE_SRC += ("'unsafe-inline'",)
 
 # OAuth2
 OAUTH2_CLIENT_ID = '788616750454-a1j2n7eg47j8pceptl6a01gnbaeqlq0e.apps.googleusercontent.com'

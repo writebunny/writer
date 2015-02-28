@@ -3,7 +3,7 @@
     <h1 class="md-toolbar-tools">Book</h1>
   </md-toolbar>
   <md-content class="md-padding">
-    <form name="bookForm">
+    <form name="bookForm" ng-submit="book.$save()">
       <md-input-container>
         <label>Title</label>
         <input name="title" ng-model="book.title" required md-maxlength="100" minlength="4">
@@ -13,10 +13,10 @@
           <div ng-message="minlength">Title is too short!</div>
         </div>
       </md-input-container>
+      <section layout="row" layout-align="space-between center">
+        <md-button class="md-raised">Cancel</md-button>
+        <md-button class="md-raised md-primary" type="submit">Save</md-button>
+      </section>
     </form>
-  </md-content>
-  <md-content class="md-padding" layout="row" layout-align="space-between center">
-    <md-button class="md-raised">Cancel</md-button>
-    <md-button class="md-raised md-primary" ng-click="book.$save()">Save</md-button>
   </md-content>
 </div>
