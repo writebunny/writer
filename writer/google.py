@@ -29,19 +29,13 @@ class GoogleDrive(GoogleAPI):
 
   @inject_service('drive', 'v2')
   def files_insert(self, user, service, **kwargs):
-    return service.files().insert(body={
-        'title': kwargs.get('title'),
-        'description': kwargs.get('description'),
-        'mimeType': kwargs.get(
-            'mime_type', 'application/vnd.google-apps.document'),
-    }).execute()
+    # 'application/vnd.google-apps.document'
+    return service.files().insert(body=kwargs).execute()
 
   @inject_service('drive', 'v2')
   def files_update(self, user, service, **kwargs):
-    return service.files().update(fileId=kwargs['file_id'], body={
-        'title': kwargs['title'],
-        'description': kwargs['description'],
-    }).execute()
+    file_id = kwargs.pop('fileId')
+    return service.files().update(fileId=file_id, body=kwargs).execute()
 
   @inject_service('drive', 'v2')
   def files_list(self, user, service):

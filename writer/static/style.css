@@ -13,3 +13,18 @@ header nav a {
   margin: 1em;
   text-align: center;
 }
+
+.editable {
+  border: 2px solid transparent;
+}
+
+.editable:hover {
+  background-color: #E6E6E6;
+}
+
+.editable:focus,
+.editable:focus:hover {
+  background-color: inherit;
+  border-color: #69c773;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.15) inset;
+}

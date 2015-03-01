@@ -4,10 +4,13 @@
 {% block body_tag %}<body ng-controller="DashboardCtrl">{% endblock %}
 
 
+{% block nav_extra %}
+<a href="#" ng-click="openBookshelf()">bookshelf</a>
+{% endblock %}
+
+
 {% block content %}
-  <div ng-show="0">
-    TEST
-  </div>
   {% include "writer/_book.html" %}
   {% include "writer/_bookshelf.html" %}
+  {% include "writer/_contents.html" %}
 {% endblock %}

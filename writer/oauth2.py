@@ -34,7 +34,12 @@ def get_service(user, *path_args):
   storage = Storage(models.Credential, 'user', user, 'credentials')
   credentials = storage.get()
   if not credentials or credentials.invalid:
-    logging.warning('Invalid credentials for {}.'.format(user))
+    if not credentials:
+      logging.warning('No credentials for {}.'.format(user))
+    elif credentials.access_token_expired:
+      logging.info('Token expired on {}.'.format(credentials.token_expiry))
+    else:
+      logging.warning('Invalid credentials for {}.'.format(user))
     return
   http = httplib2.Http()
   http = credentials.authorize(http)

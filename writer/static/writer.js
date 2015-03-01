@@ -1,4 +1,4 @@
-app.controller('DashboardCtrl', function ($scope, $resource, Book) {
+app.controller('DashboardCtrl', function ($scope, $resource, Book, Chapter) {
 
   $scope.display = function(mode, title) {
     for (key in $scope.dsp) {
@@ -10,6 +10,20 @@ app.controller('DashboardCtrl', function ($scope, $resource, Book) {
     $scope.dsp.title = title;
   };
 
+  $scope.addBook = function() {
+    var book = new Book();
+    book.$save(function () {
+      $scope.books.push(book);
+    });
+  };
+
+  $scope.addChapter = function() {
+    var chapter = new Chapter({book: $scope.book.url});
+    chapter.$save(function () {
+      $scope.book.chapters.push(chapter);
+    });
+  };
+
   $scope.newBook = function() {
     $scope.book = new Book({title: ''});
     $scope.display('book', 'Add New Book');
@@ -18,6 +32,12 @@ app.controller('DashboardCtrl', function ($scope, $resource, Book) {
   $scope.editBook = function(item) {
     $scope.book = angular.copy(item);
     $scope.display('book', 'Edit Book');
+  };
+
+  $scope.openBook = function(book) {
+    $scope.book = book;
+    $scope.book.chapters = Chapter.query({book_id: book.id});
+    $scope.display('contents');
   };
 
   $scope.openBookshelf = function() {

@@ -25,3 +25,29 @@ indexes:
   properties:
   - name: app_label
   - name: name
+
+- kind: writer_book
+  properties:
+  - name: user_id
+  - name: title
+
+- kind: writer_chapter
+  properties:
+  - name: book_id
+  - name: index
+
+- kind: writer_chapter
+  properties:
+  - name: book_id
+  - name: title
+
+- kind: writer_chapter
+  properties:
+  - name: book_id
+  - name: user_id
+  - name: title
+
+- kind: writer_chapter
+  properties:
+  - name: user_id
+  - name: index

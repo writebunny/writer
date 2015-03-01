@@ -1,0 +1,41 @@
+{% load static %}
+<md-content class="md-padding" ng-show="dsp.contents">
+  <h2>[[ book.title ]]</h2>
+  <md-list>
+    <md-item ng-repeat="chapter in book.chapters" ng-click="editChapter(chapter)">
+      <md-item-content>
+        <div class="md-tile-left">
+          <img ng-src="{% static 'img/ic_book_black_36dp.png' %}">
+        </div>
+        <div class="md-tile-content">
+          <h3 class="editable" contentEditable="true" required
+              wb-item="chapter" ng-model="chapter.title"></h3>
+          <p class="editable" contentEditable="true" required
+             wb-item="chapter" ng-model="chapter.description"
+             placeholder="Add a description..."></p>
+        </div>
+      </md-item-content>
+    </md-item>
+  </md-list>
+
+  <md-button class="md-raised md-primary" ng-click="addChapter()">
+    New Chapter
+  </md-button>
+</md-content>
+
+
+<ul>
+{% for item in file_list.items %}
+  <li>
+    <a href="{{ item.alternateLink|safe }}" target="_blank">{{ item.title }}</a>
+    <div>
+      <img src="{{ item.thumbnailLink|safe }}" width="170" height="220" />
+    </div>
+    <div>
+      <img src="{{ item.iconLink|safe }}" />
+    </div>
+    <div>{{ item.description }}</div>
+    <div>{{ item.modifiedDate }}</div>
+  </li>
+{% endfor %}
+</ul>
