@@ -28,21 +28,24 @@ class GoogleDrive(GoogleAPI):
   """Wrapper for Google Calendar API."""
 
   @inject_service('drive', 'v2')
-  def files_insert(self, user, service):
+  def files_insert(self, user, service, **kwargs):
     return service.files().insert(body={
-        'title': 'test doc',
-        'mimeType': 'application/vnd.google-apps.document',
+        'title': kwargs.get('title'),
+        'description': kwargs.get('description'),
+        'mimeType': kwargs.get(
+            'mime_type', 'application/vnd.google-apps.document'),
+    }).execute()
+
+  @inject_service('drive', 'v2')
+  def files_update(self, user, service, **kwargs):
+    return service.files().update(fileId=kwargs['file_id'], body={
+        'title': kwargs['title'],
+        'description': kwargs['description'],
     }).execute()
 
   @inject_service('drive', 'v2')
   def files_list(self, user, service):
     return service.files().list().execute()
-
-  @inject_service('drive', 'v2')
-  def files_update(self, user, service, file_id, description):
-    return service.files().update(fileId=file_id, body={
-        'description': description,
-    }).execute()
 
   @inject_service('drive', 'v2')
   def comments_insert(self, user, service, file_id, content):

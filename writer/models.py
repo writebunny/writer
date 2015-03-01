@@ -23,6 +23,9 @@ class Book(models.Model):
   title = models.CharField(max_length=100, unique=True)
   description = models.CharField(max_length=255, blank=True)
   created = models.DateTimeField(auto_now_add=True)
+  # Google Drive fields
+  drive_id = models.CharField(max_length=100, unique=True)
+  drive_link = models.CharField(max_length=100)
 
   class Meta:
     ordering = ('title',)

@@ -25,10 +25,13 @@ handlers:
   script: main.wsgi.application
   secure: always
 
+builtins:
+  - deferred: on
+
 skip_files:
-    - manage.py
-    - README.md
-    - install_deps
-    - requirements.txt
-    - sitepackages/google_appengine*
-    - (.*)\.pyc
+  - manage.py
+  - README.md
+  - install_deps
+  - requirements.txt
+  - sitepackages/google_appengine*
+  - (.*)\.pyc

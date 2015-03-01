@@ -20,7 +20,7 @@ def inject_service(*service_args):
       user = args[1]
       service = get_service(user, *service_args)
       if service:
-        kwargs['service'] = service
+        args += (service,)
         try:
           return func(*args, **kwargs)
         except AccessTokenRefreshError:
@@ -34,6 +34,7 @@ def get_service(user, *path_args):
   storage = Storage(models.Credential, 'user', user, 'credentials')
   credentials = storage.get()
   if not credentials or credentials.invalid:
+    logging.warning('Invalid credentials for {}.'.format(user))
     return
   http = httplib2.Http()
   http = credentials.authorize(http)
@@ -57,7 +58,7 @@ class ApiWrapper(object):
 
   def validate_token(self, user, data):
     """Handle callback from authentication service and store token."""
-    logging.info('OAuth2 validating token for {}'.format(user.email))
+    logging.info('Validating token for {}'.format(user.email))
     if user.is_anonymous():
       logging.warning('Can not authenicate anonymous user.')
       return

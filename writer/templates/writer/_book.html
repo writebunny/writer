@@ -3,7 +3,7 @@
     <h1 class="md-toolbar-tools">[[ dsp.title ]]</h1>
   </md-toolbar>
   <md-content class="md-padding">
-    <form name="bookForm" ng-submit="save(book)">{% csrf_token %}
+    <form name="bookForm" ng-submit="saveBook(book)">{% csrf_token %}
       <md-input-container>
         <label>Title</label>
         <input ng-model="book.title" required md-maxlength="100" minlength="4">

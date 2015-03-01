@@ -4,7 +4,4 @@ django-secure
 django-csp
 nose
 google-api-python-client
-
 djangorestframework
-markdown       # Markdown support for the browsable API
-django-filter  # Filtering support

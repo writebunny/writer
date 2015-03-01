@@ -24,20 +24,31 @@ app.controller('DashboardCtrl', function ($scope, $resource, Book) {
     $scope.display('bookshelf');
   };
 
-  $scope.save = function(item) {
+  $scope.saveBook = function(item) {
     if (item.id) {
-      item.$update();
+      item.$update(function() {
+        var books = [];
+        angular.forEach($scope.books, function(book) {
+          if (book.id == item.id) {
+            this.push(item);
+          } else {
+            this.push(book);
+          }
+        }, books);
+        $scope.books = books;
+        $scope.openBookshelf();
+      });
     } else {
-      item.$save();
-    }
-    if (item instanceof Book) {
-      $scope.books = Book.query();
-      $scope.openBookshelf();
+      item.$save(function() {
+        $scope.books.push(item);
+        $scope.openBookshelf();
+      });
     }
   };
 
   // initialize
   $scope.dsp = {};
-  $scope.books = Book.query();
-  $scope.openBookshelf();
+  $scope.books = Book.query(function() {
+    $scope.openBookshelf();
+  });
 });
