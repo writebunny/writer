@@ -36,7 +36,7 @@ app.controller('DashboardCtrl', function ($scope, $resource, Book, Chapter) {
 
   $scope.openBook = function(book) {
     $scope.book = book;
-    $scope.book.chapters = Chapter.query({book_id: book.id});
+    $scope.book.chapters = Chapter.query({book: book.id});
     $scope.display('contents');
   };
 

@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'djangae.contrib.gauth',
     'rest_framework',
     'api',
+    'thirdparty',
     'writer',
 )
 
@@ -142,5 +143,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+GOOGLE_SCOPE = (
+    'https://www.googleapis.com/auth/calendar',  # read/write access
+    'https://www.googleapis.com/auth/drive.file',  # per-file access to files created or opened by the app
+)
 
 from djangae.contrib.gauth.settings import *

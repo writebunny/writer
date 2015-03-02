@@ -15,12 +15,8 @@
   <header>
     <nav>
       <a href="{% url 'home' %}">home</a>
+      {% block dashboard_link %}<a href="{% url 'dashboard' %}">bookshelf</a>{% endblock %}
       {% block nav_extra %}{% endblock %}
-      {% if user.is_authenticated %}
-        <span>{{ user.email }}</span>
-      {% else %}
-        <a href="{% url 'dashboard' %}">sign in</a>
-      {% endif %}
     </nav>
   </header>
   {% block content %}{% endblock %}

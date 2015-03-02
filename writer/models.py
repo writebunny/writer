@@ -1,26 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from oauth2client import django_orm
 
 
 User = get_user_model()
 
 
-class Flow(models.Model):
-  """OAuth2 flow model."""
-  user = models.OneToOneField(User, primary_key=True, related_name='flow')
-  flow = django_orm.FlowField()
-
-
-class Credential(models.Model):
-  """OAuth2 Credential model."""
-  user = models.OneToOneField(User, primary_key=True, related_name='credential')
-  credentials = django_orm.CredentialsField()
-
-
-class GoogleDriveFile(models.Model):
-  drive_id = models.CharField(max_length=100, blank=True)
-  drive_link = models.CharField(max_length=100, blank=True)
+class AbstractFile(models.Model):
+  file_id = models.CharField(max_length=100, blank=True)
+  file_link = models.CharField(max_length=100, blank=True)
   title = models.CharField(max_length=100, blank=True)
   description = models.CharField(max_length=255, blank=True)
   created = models.DateTimeField(auto_now_add=True)
@@ -36,7 +23,7 @@ class BookManager(models.Manager):
     return super(BookManager, self).create(*args, **kwargs)
 
 
-class Book(GoogleDriveFile, models.Model):
+class Book(AbstractFile, models.Model):
   objects = BookManager()
   user = models.ForeignKey(User, related_name='books')
 
@@ -56,7 +43,7 @@ class ChapterManager(models.Manager):
     return super(ChapterManager, self).create(*args, **kwargs)
 
 
-class Chapter(GoogleDriveFile, models.Model):
+class Chapter(AbstractFile, models.Model):
   objects = ChapterManager()
   user = models.ForeignKey(User, related_name='chapters')
   book = models.ForeignKey(Book, related_name='chapters')

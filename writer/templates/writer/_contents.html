@@ -1,6 +1,5 @@
 {% load static %}
 <md-content class="md-padding" ng-show="dsp.contents">
-  <h2>[[ book.title ]]</h2>
   <md-list>
     <md-item ng-repeat="chapter in book.chapters" ng-click="editChapter(chapter)">
       <md-item-content>

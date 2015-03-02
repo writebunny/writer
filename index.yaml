@@ -45,6 +45,12 @@ indexes:
   properties:
   - name: book_id
   - name: user_id
+  - name: index
+
+- kind: writer_chapter
+  properties:
+  - name: book_id
+  - name: user_id
   - name: title
 
 - kind: writer_chapter

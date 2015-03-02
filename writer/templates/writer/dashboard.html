@@ -4,8 +4,11 @@
 {% block body_tag %}<body ng-controller="DashboardCtrl">{% endblock %}
 
 
+{% block dashboard_link %}<a href="#" ng-click="openBookshelf()">bookshelf</a>{% endblock %}
+
 {% block nav_extra %}
-<a href="#" ng-click="openBookshelf()">bookshelf</a>
+<a ng-show="book" href="#" ng-click="openBook(book)">[[ book.title ]]</a>
+<a ng-show="chapter" href="#" ng-click="openChapter(chapter)">[[ chapter.title ]]</a>
 {% endblock %}
 
 
