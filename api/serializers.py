@@ -32,7 +32,6 @@ class Book(serializers.HyperlinkedModelSerializer):
 class File(serializers.Serializer):
   id = serializers.CharField(max_length=100)
   title = serializers.CharField(max_length=100)
-  alternate_link = serializers.CharField(max_length=200, source='alternateLink')
   thumbnail_link = serializers.CharField(max_length=200, source='thumbnailLink')
 
 

@@ -53,12 +53,9 @@ app.controller('DashboardCtrl', function ($scope, $resource, Book, Chapter, File
     var scene = new Scene({
         chapter: chapter.url,
         title: file.title,
-        description: file.description,
-        file_id: file.id,
-        alternate_link: file.alternate_link,
-        thumbnail_link: file.thumbnail_link
+        file_id: file.id
     });
-    scene.$save(function () {
+    scene.$save(function (scene) {
       chapter.scenes.push(scene);
       $scope.display('contents');
     });

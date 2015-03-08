@@ -26,7 +26,7 @@ class BookViewSet(viewsets.ModelViewSet):
         context={'request': request})
     if serializer.is_valid():
       book = serializer.save(user=request.user)
-      book.sync_insert()
+      book.drive_sync()
       return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -36,16 +36,14 @@ class BookViewSet(viewsets.ModelViewSet):
         book, data=request.data, context={'request': request})
     if serializer.is_valid():
       book = serializer.save()
-      book.sync_update()
+      book.deferred_drive_sync()
       return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
   @detail_route(methods=['put'])
   def touch(self, request, pk=None):
     book = get_object_or_404(models.Book, user=request.user, pk=pk)
-    extra, _ = models.UserExtra.objects.get_or_create(user=request.user)
-    extra.book = book
-    extra.save()
+    book.touch()
     return Response()
 
 
@@ -59,7 +57,7 @@ class ChapterViewSet(viewsets.ModelViewSet):
         context={'request': request})
     if serializer.is_valid():
       chapter = serializer.save(user=request.user)
-      chapter.sync_insert()
+      chapter.drive_sync()
       return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -69,7 +67,7 @@ class ChapterViewSet(viewsets.ModelViewSet):
         chapter, data=request.data, context={'request': request})
     if serializer.is_valid():
       chapter = serializer.save()
-      chapter.sync_update()
+      chapter.deferred_drive_sync()
       return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -88,14 +86,11 @@ class SceneViewSet(viewsets.ModelViewSet):
     if serializer.is_valid():
       scene = serializer.save(user=request.user)
       if file_id:
-        # link to existing doc
+        # link to existing Google doc
         scene.file_id = file_id
-        scene.alternate_link = request.data.get('alternate_link')
-        scene.thumbnail_link = request.data.get('thumbnail_link')
-        scene.save()
+        scene.drive_sync(from_google=True)
       else:
-        # create new doc
-        scene.drive_files_insert()
+        scene.drive_sync()
       return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -105,7 +100,7 @@ class SceneViewSet(viewsets.ModelViewSet):
         scene, data=request.data, context={'request': request})
     if serializer.is_valid():
       scene = serializer.save()
-      scene.sync_update()
+      scene.deferred_drive_sync()
       return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

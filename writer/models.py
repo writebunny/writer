@@ -37,13 +37,12 @@ class AbstractFile(models.Model):
   """Abstract class for a model synced with a Google Drive file."""
   TYPE = 'folder'
   MIME_TYPE = 'application/vnd.google-apps.folder'
-  file_id = models.CharField(max_length=100, blank=True)
-  alternate_link = models.CharField(max_length=100, blank=True)
-  icon_link = models.CharField(max_length=100, blank=True)
-  thumbnail_link = models.CharField(max_length=100, blank=True)
+  file_id = models.CharField(max_length=200, blank=True)
+  alternate_link = models.CharField(max_length=200, blank=True)
+  pdf_link = models.CharField(max_length=200, blank=True)
+  thumbnail_link = models.CharField(max_length=200, blank=True)
   title = models.CharField(max_length=100, blank=True)
   description = models.CharField(max_length=255, blank=True)
-  created = models.DateTimeField(auto_now_add=True)
 
   class Meta(object):
     abstract = True
@@ -59,35 +58,40 @@ class AbstractFile(models.Model):
         pk=self.pk,
         method_name=method_name)
 
-  def drive_files_insert(self):
-    """Insert file on Google Drive."""
-    body={
-        'title': self.title,
-        'description': self.description,
-        'mimeType': self.MIME_TYPE,
-    }
-    if self.parent:
-      body['parents'] = [{'id': self.parent.file_id}]
+  def drive_sync(self, from_google=False, data=None):
+    """Sync file with Google Drive."""
     service = oauth_service(self.user, 'drive', 'v2')
-    response = service.files().insert(body=body).execute()
-    self.file_id = response['id']
-    self.alternate_link = response['alternateLink']
-    self.icon_link = response['iconLink']
+    if from_google:
+      # copy changes from Google drive
+      if data is None:
+        data = service.files().get(fileId=self.file_id).execute()
+      self.title = data.get('title')
+      self.description = data.get('description', '')
+    else:
+      # save changes to Google drive
+      body = {
+          'title': self.title,
+          'description': self.description,
+          'mimeType': self.MIME_TYPE,
+      }
+      if self.parent:
+        body['parents'] = [{'id': self.parent.file_id}]
+      if self.file_id:
+        # update
+        data = service.files().update(fileId=self.file_id, body=body).execute()
+      else:
+        # insert
+        data = service.files().insert(body=body).execute()
+        self.file_id = data['id']
+
+    self.alternate_link = data['alternateLink']
+    if self.MIME_TYPE == 'application/vnd.google-apps.document':
+      self.pdf_link = data['exportLinks']['application/pdf']
+      self.thumbnail_link = data.get('thumbnailLink', '')
     self.save()
 
-  def drive_files_update(self):
-    """Update a file on Google Drive."""
-    service = oauth_service(self.user, 'drive', 'v2')
-    response = service.files().update(fileId=self.file_id, body={
-        'title': self.title,
-        'description': self.description,
-    }).execute()
-
-  def sync_insert(self):
-    self.defer_task('drive_files_insert')
-
-  def sync_update(self):
-    self.defer_task('drive_files_update')
+  def deferred_drive_sync(self):
+    self.defer_task('drive_sync')
 
 
 class Book(AbstractFile, models.Model):
@@ -107,6 +111,12 @@ class Book(AbstractFile, models.Model):
   @property
   def is_active(self):
     return self.user.extra.book == self
+
+  def touch(self):
+    """Set as the user's active book."""
+    extra, _ = UserExtra.objects.get_or_create(user=self.user)
+    extra.book = self
+    extra.save()
 
 
 class Chapter(AbstractFile, models.Model):
@@ -138,6 +148,8 @@ class Scene(AbstractFile, models.Model):
   user = models.ForeignKey(User, related_name='scenes')
   chapter = models.ForeignKey(Chapter, related_name='scenes')
   index = models.PositiveSmallIntegerField(default=0)
+  page_count = models.PositiveIntegerField(default=0)
+  word_count = models.PositiveIntegerField(default=0)
 
   class Meta:
     ordering = ('index',)
@@ -183,20 +195,19 @@ class UserExtra(models.Model):
         logging.error('HTTP error {}'.format(error))
         return
       items = response.get('items')
-      for item in items:
-        item_file = item.get('file')
-        if item_file:
-          instance = get_instance(file_id=item_file['id'])
-          if instance and instance.TYPE == 'document':
-            instance.thumbnail_link = item_file['thumbnailLink']
-            instance.save()
-            # print instance.title, instance.thumbnail_link
-
       count += len(items)
+      for item in items:
+        data = item.get('file')
+        if data:
+          instance = get_instance(file_id=data['id'])
+          if instance:
+            instance.drive_sync(from_google=True, data=data)
+
       params['pageToken'] = response.get('nextPageToken')
       if not params['pageToken']:
-        logging.info('{} changes for {}'.format(count, self.user.email))
         break
 
+    if count:
+      logging.info('{} changes for {}'.format(count, self.user.email))
     self.drive_change_id = response.get('largestChangeId')
     self.save()
