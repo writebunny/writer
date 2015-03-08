@@ -26,7 +26,7 @@ class BookViewSet(viewsets.ModelViewSet):
         context={'request': request})
     if serializer.is_valid():
       book = serializer.save(user=request.user)
-      book.drive_sync()
+      book.deferred_drive_sync()
       return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -57,7 +57,7 @@ class ChapterViewSet(viewsets.ModelViewSet):
         context={'request': request})
     if serializer.is_valid():
       chapter = serializer.save(user=request.user)
-      chapter.drive_sync()
+      chapter.deferred_drive_sync()
       return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

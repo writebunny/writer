@@ -1,8 +1,10 @@
-from apiclient import errors
-import logging
+import codecs
 from django.contrib.auth import get_user_model
 from django.db import models
 from google.appengine.ext import deferred
+import logging
+from PDF.pdf import PdfFileReader
+import StringIO
 
 from thirdparty.oauth2 import oauth_service
 
@@ -38,11 +40,9 @@ class AbstractFile(models.Model):
   TYPE = 'folder'
   MIME_TYPE = 'application/vnd.google-apps.folder'
   file_id = models.CharField(max_length=200, blank=True)
-  alternate_link = models.CharField(max_length=200, blank=True)
-  pdf_link = models.CharField(max_length=200, blank=True)
-  thumbnail_link = models.CharField(max_length=200, blank=True)
   title = models.CharField(max_length=100, blank=True)
   description = models.CharField(max_length=255, blank=True)
+  alternate_link = models.CharField(max_length=200, blank=True)
 
   class Meta(object):
     abstract = True
@@ -50,6 +50,12 @@ class AbstractFile(models.Model):
   @property
   def parent(self):
     return
+
+  @property
+  def service(self):
+    if not hasattr(self, '_service'):
+      self._service = oauth_service(self.user, 'drive', 'v2')
+    return self._service
 
   def defer_task(self, method_name):
     deferred.defer(
@@ -60,11 +66,10 @@ class AbstractFile(models.Model):
 
   def drive_sync(self, from_google=False, data=None):
     """Sync file with Google Drive."""
-    service = oauth_service(self.user, 'drive', 'v2')
     if from_google:
       # copy changes from Google drive
       if data is None:
-        data = service.files().get(fileId=self.file_id).execute()
+        data = self.service.files().get(fileId=self.file_id).execute()
       self.title = data.get('title')
       self.description = data.get('description', '')
     else:
@@ -78,23 +83,72 @@ class AbstractFile(models.Model):
         body['parents'] = [{'id': self.parent.file_id}]
       if self.file_id:
         # update
-        data = service.files().update(fileId=self.file_id, body=body).execute()
+        data = self.service.files().update(
+            fileId=self.file_id, body=body).execute()
       else:
         # insert
-        data = service.files().insert(body=body).execute()
+        data = self.service.files().insert(body=body).execute()
         self.file_id = data['id']
-
     self.alternate_link = data['alternateLink']
-    if self.MIME_TYPE == 'application/vnd.google-apps.document':
-      self.pdf_link = data['exportLinks']['application/pdf']
-      self.thumbnail_link = data.get('thumbnailLink', '')
-    self.save()
+    return data
 
   def deferred_drive_sync(self):
     self.defer_task('drive_sync')
 
 
-class Book(AbstractFile, models.Model):
+class GoogleFolder(AbstractFile):
+  """Abstract model based on a Google Drive folder."""
+  MIME_TYPE = 'application/vnd.google-apps.folder'
+
+  class Meta(object):
+    abstract = True
+
+  def drive_sync(self, from_google=False, data=None):
+    """Sync file with Google Drive."""
+    super(GoogleFolder, self).drive_sync(from_google, data)
+    self.save()
+
+
+class GoogleDocument(AbstractFile):
+  """Abstract model based on a Google Drive document."""
+  MIME_TYPE = 'application/vnd.google-apps.document'
+  docx_link = models.CharField(max_length=200, blank=True)
+  pdf_link = models.CharField(max_length=200, blank=True)
+  text_link = models.CharField(max_length=200, blank=True)
+  thumbnail_link = models.CharField(max_length=200, blank=True)
+  page_count = models.PositiveIntegerField(default=0)
+  word_count = models.PositiveIntegerField(default=0)
+
+  class Meta(object):
+    abstract = True
+
+  def drive_sync(self, from_google=False, data=None):
+    """Sync file with Google Drive."""
+    data = super(GoogleDocument, self).drive_sync(from_google, data)
+    self.docx_link = data['exportLinks']['application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+    self.pdf_link = data['exportLinks']['application/pdf']
+    self.text_link = data['exportLinks']['text/plain']
+    self.thumbnail_link = data.get('thumbnailLink', '')
+    self.save()
+
+    if from_google:
+      # update page count (PDF)
+      resp, content = self.service._http.request(self.pdf_link)
+      if resp.status == 200:
+        pdf = PdfFileReader(StringIO.StringIO(content))
+        self.page_count = pdf.getNumPages()
+      # update word count (plain text)
+      resp, content = self.service._http.request(self.text_link)
+      if resp.status == 200:
+        content = codecs.decode(content, 'utf-8').strip(u'\ufeff')
+        self.word_count = len(content.split())
+      self.save()
+      # aggregates e.g. on chapter
+      if self.parent and hasattr(self.parent, 'update_counts'):
+        self.parent.update_counts()
+
+
+class Book(GoogleFolder):
   user = models.ForeignKey(User, related_name='books')
 
   class Meta:
@@ -119,10 +173,13 @@ class Book(AbstractFile, models.Model):
     extra.save()
 
 
-class Chapter(AbstractFile, models.Model):
+class Chapter(GoogleFolder):
   user = models.ForeignKey(User, related_name='chapters')
   book = models.ForeignKey(Book, related_name='chapters')
   index = models.PositiveSmallIntegerField(default=0)
+  # aggregate fields
+  page_count = models.PositiveIntegerField(default=0)
+  word_count = models.PositiveIntegerField(default=0)
 
   class Meta:
     ordering = ('index',)
@@ -141,15 +198,21 @@ class Chapter(AbstractFile, models.Model):
       self.title = 'Chapter {}'.format(self.index + 1)
     super(Chapter, self).save(*args, **kwargs)
 
+  def update_counts(self):
+    self.page_count = 0
+    self.word_count = 0
+    for scene in self.scenes.all():
+      self.page_count += scene.page_count
+      self.word_count += scene.word_count
+    self.save()
 
-class Scene(AbstractFile, models.Model):
+
+class Scene(GoogleDocument):
   TYPE = 'document'
   MIME_TYPE = 'application/vnd.google-apps.document'
   user = models.ForeignKey(User, related_name='scenes')
   chapter = models.ForeignKey(Chapter, related_name='scenes')
   index = models.PositiveSmallIntegerField(default=0)
-  page_count = models.PositiveIntegerField(default=0)
-  word_count = models.PositiveIntegerField(default=0)
 
   class Meta:
     ordering = ('index',)
@@ -186,7 +249,7 @@ class UserExtra(models.Model):
 
   def process_drive_changes(self):
     count = 0
-    params = {'startChangeId': self.drive_change_id + 1}
+    params = {'startChangeId': self.drive_change_id}
     service = oauth_service(self.user, 'drive', 'v2')
     while True:
       try:

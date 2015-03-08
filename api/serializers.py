@@ -7,8 +7,12 @@ from writer import models
 class Scene(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = models.Scene
-    fields = ('url', 'id', 'chapter', 'index', 'title', 'description', 'alternate_link', 'thumbnail_link')
-    read_only_fields = ('url', 'id', 'index', 'alternate_link', 'thumbnail_link')
+    fields = (
+        'url', 'id', 'chapter', 'index', 'title', 'description',
+        'page_count', 'word_count', 'alternate_link', 'thumbnail_link')
+    read_only_fields = (
+        'url', 'id', 'index', 'page_count', 'word_count',
+        'alternate_link', 'thumbnail_link')
 
 
 class Chapter(serializers.HyperlinkedModelSerializer):
@@ -16,8 +20,10 @@ class Chapter(serializers.HyperlinkedModelSerializer):
 
   class Meta:
     model = models.Chapter
-    fields = ('url', 'id', 'book', 'index', 'title', 'description', 'scenes')
-    read_only_fields = ('url', 'id', 'index')
+    fields = (
+        'url', 'id', 'book', 'index', 'title', 'description', 'scenes',
+        'page_count', 'word_count')
+    read_only_fields = ('url', 'id', 'index', 'page_count', 'word_count')
 
 
 class Book(serializers.HyperlinkedModelSerializer):

@@ -9,6 +9,12 @@
           <p class="editable" contentEditable="true" required
              wb-item="chapter" ng-model="chapter.description"
              placeholder="description..."></p>
+          <p>
+            <ng-pluralize count="chapter.page_count"
+                 when="{'one': '1 page', 'other': '{} pages'}"></ng-pluralize>
+            <ng-pluralize count="chapter.word_count"
+                 when="{'one': '1 word', 'other': '{} words'}"></ng-pluralize>
+          </p>
         </div>
         <div class="md-tile-content">
           <md-list layout="row" layout-wrap>
@@ -23,6 +29,12 @@
                 <p class="editable" contentEditable="true" required
                    wb-item="scene" ng-model="scene.description"
                    placeholder="description..."></p>
+                <p>
+                  <ng-pluralize count="scene.page_count"
+                       when="{'one': '1 page', 'other': '{} pages'}"></ng-pluralize>
+                  <ng-pluralize count="scene.word_count"
+                       when="{'one': '1 word', 'other': '{} words'}"></ng-pluralize>
+                </p>
               </md-item-content>
             </md-item>
             <md-item layout="column" layout-align="end center">

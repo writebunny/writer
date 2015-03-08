@@ -5,4 +5,5 @@ django-csp
 nose
 google-api-python-client
 djangorestframework
+setuptools
 PDF
