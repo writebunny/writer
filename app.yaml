@@ -32,6 +32,7 @@ builtins:
   - deferred: on
 
 skip_files:
+  - env/
   - deploy
   - manage.py
   - README.md
