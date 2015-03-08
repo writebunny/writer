@@ -162,16 +162,13 @@ class UserExtra(models.Model):
   user = models.OneToOneField(User, primary_key=True, related_name='extra')
   book = models.ForeignKey(Book, blank=True, null=True,
                            help_text='Active book.')
-  drive_change_id = models.CharField(max_length=100, blank=True,
+  drive_change_id = models.PositiveIntegerField(default=0,
       help_text='Largest change ID from Google drive.')
 
   def process_drive_changes(self):
     count = 0
+    params = {'startChangeId': self.drive_change_id + 1}
     service = oauth_service(self.user, 'drive', 'v2')
-    if self.drive_change_id:
-      params = {'startChangeId': self.drive_change_id}
-    else:
-      params = {}
     while True:
       try:
         changes = service.changes().list(**params).execute()
@@ -180,15 +177,13 @@ class UserExtra(models.Model):
         return
       items = changes.get('items')
       for item in items:
-        instance = get_instance(file_id=item['file']['id'])
-        if instance and instance.TYPE == 'document':
-          instance.thumbnail_link = item['file']['thumbnailLink']
-          # instance.thumbnail_link = '{}&version={}'.format(
-          #     item['file']['thumbnailLink'],
-          #     item['file']['version'],  # add timestamp to avoid caching
-          # )
-          instance.save()
-          print instance.title, instance.thumbnail_link
+        item_file = item.get('file')
+        if item_file:
+          instance = get_instance(file_id=item_file['id'])
+          if instance and instance.TYPE == 'document':
+            instance.thumbnail_link = item_file['thumbnailLink']
+            instance.save()
+            # print instance.title, instance.thumbnail_link
 
       count += len(items)
       params['pageToken'] = changes.get('nextPageToken')
