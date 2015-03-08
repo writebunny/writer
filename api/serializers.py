@@ -29,6 +29,13 @@ class Book(serializers.HyperlinkedModelSerializer):
     read_only_fields = ('url', 'id')
 
 
+class File(serializers.Serializer):
+  id = serializers.CharField(max_length=100)
+  title = serializers.CharField(max_length=100)
+  alternate_link = serializers.CharField(max_length=200, source='alternateLink')
+  thumbnail_link = serializers.CharField(max_length=200, source='thumbnailLink')
+
+
 class User(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = get_user_model()

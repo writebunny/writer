@@ -1,4 +1,4 @@
-app.controller('DashboardCtrl', function ($scope, $resource, Book, Chapter, Scene) {
+app.controller('DashboardCtrl', function ($scope, $resource, Book, Chapter, File, Scene) {
 
   $scope.display = function(mode) {
     for (key in $scope.dsp) {
@@ -39,6 +39,29 @@ app.controller('DashboardCtrl', function ($scope, $resource, Book, Chapter, Scen
   $scope.openBookshelf = function() {
     delete $scope.book;
     $scope.display('bookshelf');
+  };
+
+  $scope.openFiles = function(chapter) {
+    $scope.chapter = chapter;
+    if (!$scope.files) {
+      $scope.files = File.query();
+    }
+    $scope.display('files');
+  };
+
+  $scope.linkFile = function(chapter, file) {
+    var scene = new Scene({
+        chapter: chapter.url,
+        title: file.title,
+        description: file.description,
+        file_id: file.id,
+        alternate_link: file.alternate_link,
+        thumbnail_link: file.thumbnail_link
+    });
+    scene.$save(function () {
+      chapter.scenes.push(scene);
+      $scope.display('contents');
+    });
   };
 
   // initialize

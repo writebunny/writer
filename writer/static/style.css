@@ -26,20 +26,28 @@ header nav a {
   max-width: 15em;
 }
 
+.wb-file {
+  margin: 0 1em;
+}
+
+.wb-file .title,
 .wb-scene .title {
   font-weight: bold;
   white-space: nowrap;
 }
 
+.wb-file .thumbnail,
 .wb-scene .thumbnail {
   display: block;
   box-shadow: 2px 2px 2px 2px #CCC;
-  width: 90px;
-  height: 115px;
+  width: 62px;
+  height: 80px;
 }
 
-.wb-scene .thumbnail:hover {
+.wb-file .thumbnail:hover,
+.wb-scene a .thumbnail:hover {
   box-shadow: 2px 2px 2px 2px #b2dfdb;
+  cursor: pointer;
 }
 
 .editable {

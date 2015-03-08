@@ -146,7 +146,8 @@ REST_FRAMEWORK = {
 
 GOOGLE_SCOPE = (
     'https://www.googleapis.com/auth/calendar',  # read/write access
-    'https://www.googleapis.com/auth/drive.file',  # per-file access to files created or opened by the app
+    'https://www.googleapis.com/auth/drive',  # full drive access
+    # 'https://www.googleapis.com/auth/drive.file',  # per-file access to files created or opened by the app
 )
 
 from djangae.contrib.gauth.settings import *

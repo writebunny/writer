@@ -3,7 +3,7 @@
   <md-list>
     <md-item ng-repeat="chapter in book.chapters">
       <md-item-content>
-        <div class="md-tile-left wb-chapter">
+        <div class="wb-chapter" layout="column" layout-align="start start">
           <div class="title editable" contentEditable="true" required
               wb-item="chapter" ng-model="chapter.title"></div>
           <p class="editable" contentEditable="true" required
@@ -11,8 +11,7 @@
              placeholder="description..."></p>
         </div>
         <div class="md-tile-content">
-
-          <md-list layout="row">
+          <md-list layout="row" layout-wrap>
             <md-item ng-repeat="scene in chapter.scenes">
               <md-item-content class="wb-scene" layout="column">
                 <div class="title editable" contentEditable="true" required
@@ -26,10 +25,11 @@
                    placeholder="description..."></p>
               </md-item-content>
             </md-item>
-            <md-item>
+            <md-item layout="column" layout-align="end center">
               <md-button class="md-raised md-primary" ng-click="addScene(chapter)">
                 Add Scene
               </md-button>
+              <md-button ng-click="openFiles(chapter)">import</md-button>
             </md-item>
           </md-list>
 

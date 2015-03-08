@@ -165,17 +165,24 @@ class UserExtra(models.Model):
   drive_change_id = models.PositiveIntegerField(default=0,
       help_text='Largest change ID from Google drive.')
 
+  def get_list_files(self):
+    service = oauth_service(self.user, 'drive', 'v2')
+    response = service.files().list(
+        q='trashed=false and mimeType="application/vnd.google-apps.document"',
+    ).execute()
+    return response.get('items')
+
   def process_drive_changes(self):
     count = 0
     params = {'startChangeId': self.drive_change_id + 1}
     service = oauth_service(self.user, 'drive', 'v2')
     while True:
       try:
-        changes = service.changes().list(**params).execute()
+        response = service.changes().list(**params).execute()
       except errors.HttpError, error:
         logging.error('HTTP error {}'.format(error))
         return
-      items = changes.get('items')
+      items = response.get('items')
       for item in items:
         item_file = item.get('file')
         if item_file:
@@ -186,10 +193,10 @@ class UserExtra(models.Model):
             # print instance.title, instance.thumbnail_link
 
       count += len(items)
-      params['pageToken'] = changes.get('nextPageToken')
+      params['pageToken'] = response.get('nextPageToken')
       if not params['pageToken']:
         logging.info('{} changes for {}'.format(count, self.user.email))
         break
 
-    self.drive_change_id = changes.get('largestChangeId')
+    self.drive_change_id = response.get('largestChangeId')
     self.save()

@@ -31,8 +31,13 @@ app.factory('Chapter', ['$resource', function($resource) {
   });
 }]);
 
+app.factory('File', ['$resource', function($resource) {
+  return $resource('/api/files/:id/', {id:'@id'});
+}]);
+
 app.factory('Scene', ['$resource', function($resource) {
   return $resource('/api/scenes/:id/', {id:'@id'}, {
+    // 'link': { method:'POST', url:'/api/scenes/:id/link/' },
     'update': { method:'PUT' }
   });
 }]);

@@ -1,0 +1,11 @@
+<md-content class="md-padding" ng-show="dsp.files">
+<h3>Import File</h3>
+  <md-list layout="row" layout-wrap>
+    <md-item ng-repeat="file in files|orderBy:'title'">
+      <md-item-content class="wb-file" layout="column">
+        <div class="title">[[ file.title ]]</div>
+        <img class="thumbnail" ng-src="[[ file.thumbnail_link ]]" ng-click="linkFile(chapter, file)" />
+      </md-item-content>
+    </md-item>
+  </md-list>
+</md-content>
