@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from thirdparty.oauth2 import oauth_required
+from writer import models
 
 
 def home(request):
@@ -16,4 +17,6 @@ def home(request):
 @login_required
 @oauth_required(settings.GOOGLE_SCOPE)
 def dashboard(request):
+  extra, _ = models.UserExtra.objects.get_or_create(user=request.user)
+  extra.process_drive_changes()
   return render_to_response('writer/dashboard.html', {}, RequestContext(request))

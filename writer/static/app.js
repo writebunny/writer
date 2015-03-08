@@ -20,12 +20,19 @@ app.config(['$resourceProvider', function($resourceProvider) {
 
 app.factory('Book', ['$resource', function($resource) {
   return $resource('/api/books/:id/', {id:'@id'}, {
+    'touch': { method:'PUT', url:'/api/books/:id/touch/' },
     'update': { method:'PUT' }
   });
 }]);
 
 app.factory('Chapter', ['$resource', function($resource) {
   return $resource('/api/chapters/:id/', {id:'@id'}, {
+    'update': { method:'PUT' }
+  });
+}]);
+
+app.factory('Scene', ['$resource', function($resource) {
+  return $resource('/api/scenes/:id/', {id:'@id'}, {
     'update': { method:'PUT' }
   });
 }]);
@@ -55,6 +62,11 @@ app.directive("contenteditable", function() {
 
       ngModel.$render = function() {
         element.html(ngModel.$viewValue || attrs['placeholder'] || "");
+        if (ngModel.$viewValue) {
+          element[0].classList.remove('editable-blank');
+        } else {
+          element[0].classList.add('editable-blank');
+        }
       };
 
       element.bind("blur change", function() {

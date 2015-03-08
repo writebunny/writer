@@ -1,10 +1,9 @@
+/*
+ * http://www.google.com/design/spec/style/color.html
+ */
+
 header nav a {
   display: inline;
-}
-
-.wb-form {
-  margin: 1em;
-  width: 30em;
 }
 
 .wb-book {
@@ -14,17 +13,50 @@ header nav a {
   text-align: center;
 }
 
+.wb-chapter {
+  width: 10em;
+}
+
+.wb-chapter .title {
+  font-weight: bold;
+}
+
+.wb-scene {
+  margin: 0 0.5em;
+  max-width: 15em;
+}
+
+.wb-scene .title {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.wb-scene .thumbnail {
+  display: block;
+  box-shadow: 2px 2px 2px 2px #CCC;
+  width: 90px;
+  height: 115px;
+}
+
+.wb-scene .thumbnail:hover {
+  box-shadow: 2px 2px 2px 2px #b2dfdb;
+}
+
 .editable {
   border: 2px solid transparent;
 }
 
 .editable:hover {
-  background-color: #E6E6E6;
+  background-color: #b2dfdb;
 }
 
 .editable:focus,
 .editable:focus:hover {
   background-color: inherit;
-  border-color: #69c773;
+  border-color: #b2dfdb;
   box-shadow: 0 1px 5px rgba(0,0,0,0.15) inset;
+}
+
+.editable-blank {
+  color: #999;
 }

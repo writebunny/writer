@@ -1,4 +1,4 @@
-app.controller('DashboardCtrl', function ($scope, $resource, Book, Chapter) {
+app.controller('DashboardCtrl', function ($scope, $resource, Book, Chapter, Scene) {
 
   $scope.display = function(mode) {
     for (key in $scope.dsp) {
@@ -16,36 +16,48 @@ app.controller('DashboardCtrl', function ($scope, $resource, Book, Chapter) {
     });
   };
 
-  $scope.addChapter = function() {
-    var chapter = new Chapter({book: $scope.book});
+  $scope.addChapter = function(book) {
+    var chapter = new Chapter({book: book.url});
     chapter.$save(function () {
-      $scope.book.chapters.push(chapter);
+      book.chapters.push(chapter);
+    });
+  };
+
+  $scope.addScene = function(chapter) {
+    var scene = new Scene({chapter: chapter.url});
+    scene.$save(function () {
+      chapter.scenes.push(scene);
     });
   };
 
   $scope.openBook = function(book) {
     $scope.book = book;
-    $scope.book.chapters = Chapter.query({book: book.id});
-    delete $scope.chapter;
-    delete $scope.scene;
+    $scope.book.$touch();
     $scope.display('contents');
   };
 
   $scope.openBookshelf = function() {
+    delete $scope.book;
     $scope.display('bookshelf');
-  };
-
-  $scope.openChapter = function(chapter) {
-    console.log('test');
-    $scope.chapter = chapter;
-    // $scope.book.chapters = Chapter.query({book: book.id});
-    delete $scope.scene;
-    $scope.display('chapter');
   };
 
   // initialize
   $scope.dsp = {};
   $scope.books = Book.query(function() {
-    $scope.openBookshelf();
+    for(var i=0, n=$scope.books.length; i < n; i++) {
+      var book = $scope.books[i];
+      if (book.is_active) {
+        $scope.book = book;
+        $scope.display('contents');
+      }
+      for(var j=0, n2=book.chapters.length; j < n2; j++) {
+        var chapter = new Chapter(book.chapters[j]);
+        book.chapters[j] = chapter;
+        for(var k=0, n3=chapter.scenes.length; k < n3; k++) {
+          chapter.scenes[k] = new Scene(chapter.scenes[k]);
+        }
+      }
+    }
   });
+  $scope.openBookshelf();
 });

@@ -122,18 +122,18 @@ STATICFILES_FINDERS = (
 
 CSP_DEFAULT_SRC = (
     "'self'",
-    'ajax.googleapis.com',
+    'https://ajax.googleapis.com',
 )
 
 CSP_IMG_SRC = (
     "'self'",
-    'docs.google.com',
-    'ssl.gstatic.com',
+    'https://docs.google.com',
+    'https://ssl.gstatic.com',
 )
 
 CSP_STYLE_SRC = (
     "'self'",
-    'ajax.googleapis.com',
+    'https://ajax.googleapis.com',
 )
 
 REST_FRAMEWORK = {

@@ -7,15 +7,11 @@
 {% block dashboard_link %}<a href="#" ng-click="openBookshelf()">bookshelf</a>{% endblock %}
 
 {% block nav_extra %}
-<a ng-show="book" href="#" ng-click="openBook(book)">[[ book.title ]]</a>
-<a ng-show="chapter" href="#" ng-click="openChapter(chapter)">[[ chapter.title ]]</a>
-<a ng-show="scene" href="#" ng-click="openScene(scene)">[[ scene.title ]]</a>
+[[ book.title ]]
 {% endblock %}
 
 
 {% block content %}
-  {% include "writer/_book.html" %}
   {% include "writer/_bookshelf.html" %}
   {% include "writer/_contents.html" %}
-  {% include "writer/_chapter.html" %}
 {% endblock %}

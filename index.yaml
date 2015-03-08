@@ -57,3 +57,14 @@ indexes:
   properties:
   - name: user_id
   - name: index
+
+- kind: writer_scene
+  properties:
+  - name: chapter_id
+  - name: index
+
+- kind: writer_scene
+  properties:
+  - name: chapter_id
+  - name: user_id
+  - name: index

@@ -1,3 +1,5 @@
+from apiclient import errors
+import logging
 from django.contrib.auth import get_user_model
 from django.db import models
 from google.appengine.ext import deferred
@@ -16,12 +18,29 @@ def run_task(model_name, pk, method_name, **kwargs):
   method(**kwargs)
 
 
+def get_instance(file_id):
+  try:
+    return Scene.objects.get(file_id=file_id)
+  except Scene.DoesNotExist:
+    pass
+  try:
+    return Chapter.objects.get(file_id=file_id)
+  except Chapter.DoesNotExist:
+    pass
+  try:
+    return Book.objects.get(file_id=file_id)
+  except Book.DoesNotExist:
+    pass
+
+
 class AbstractFile(models.Model):
   """Abstract class for a model synced with a Google Drive file."""
-
+  TYPE = 'folder'
   MIME_TYPE = 'application/vnd.google-apps.folder'
   file_id = models.CharField(max_length=100, blank=True)
-  file_link = models.CharField(max_length=100, blank=True)
+  alternate_link = models.CharField(max_length=100, blank=True)
+  icon_link = models.CharField(max_length=100, blank=True)
+  thumbnail_link = models.CharField(max_length=100, blank=True)
   title = models.CharField(max_length=100, blank=True)
   description = models.CharField(max_length=255, blank=True)
   created = models.DateTimeField(auto_now_add=True)
@@ -52,7 +71,8 @@ class AbstractFile(models.Model):
     service = oauth_service(self.user, 'drive', 'v2')
     response = service.files().insert(body=body).execute()
     self.file_id = response['id']
-    self.file_link = response['selfLink']
+    self.alternate_link = response['alternateLink']
+    self.icon_link = response['iconLink']
     self.save()
 
   def drive_files_update(self):
@@ -62,6 +82,12 @@ class AbstractFile(models.Model):
         'title': self.title,
         'description': self.description,
     }).execute()
+
+  def sync_insert(self):
+    self.defer_task('drive_files_insert')
+
+  def sync_update(self):
+    self.defer_task('drive_files_update')
 
 
 class Book(AbstractFile, models.Model):
@@ -74,14 +100,13 @@ class Book(AbstractFile, models.Model):
     return self.title
 
   def save(self, *args, **kwargs):
-    created = self.pk is None
     if not self.title:
       self.title = 'Untitled Book'
     super(Book, self).save(*args, **kwargs)
-    if created:
-      self.defer_task('drive_files_insert')
-    else:
-      self.defer_task('drive_files_update')
+
+  @property
+  def is_active(self):
+    return self.user.extra.book == self
 
 
 class Chapter(AbstractFile, models.Model):
@@ -100,13 +125,76 @@ class Chapter(AbstractFile, models.Model):
     return self.book
 
   def save(self, *args, **kwargs):
-    created = self.pk is None
-    if created:
+    if not self.pk:
       self.index = self.book.chapters.count()
     if not self.title:
       self.title = 'Chapter {}'.format(self.index + 1)
     super(Chapter, self).save(*args, **kwargs)
-    if created:
-      self.defer_task('drive_files_insert')
+
+
+class Scene(AbstractFile, models.Model):
+  TYPE = 'document'
+  MIME_TYPE = 'application/vnd.google-apps.document'
+  user = models.ForeignKey(User, related_name='scenes')
+  chapter = models.ForeignKey(Chapter, related_name='scenes')
+  index = models.PositiveSmallIntegerField(default=0)
+
+  class Meta:
+    ordering = ('index',)
+
+  def __unicode__(self):
+    return self.title
+
+  @property
+  def parent(self):
+    return self.chapter
+
+  def save(self, *args, **kwargs):
+    if not self.pk:
+      self.index = self.chapter.scenes.count()
+    if not self.title:
+      self.title = 'Scene {}'.format(self.index + 1)
+    super(Scene, self).save(*args, **kwargs)
+
+
+class UserExtra(models.Model):
+  """Extra settings for the user."""
+  user = models.OneToOneField(User, primary_key=True, related_name='extra')
+  book = models.ForeignKey(Book, blank=True, null=True,
+                           help_text='Active book.')
+  drive_change_id = models.CharField(max_length=100, blank=True,
+      help_text='Largest change ID from Google drive.')
+
+  def process_drive_changes(self):
+    count = 0
+    service = oauth_service(self.user, 'drive', 'v2')
+    if self.drive_change_id:
+      params = {'startChangeId': self.drive_change_id}
     else:
-      self.defer_task('drive_files_update')
+      params = {}
+    while True:
+      try:
+        changes = service.changes().list(**params).execute()
+      except errors.HttpError, error:
+        logging.error('HTTP error {}'.format(error))
+        return
+      items = changes.get('items')
+      for item in items:
+        instance = get_instance(file_id=item['file']['id'])
+        if instance and instance.TYPE == 'document':
+          instance.thumbnail_link = item['file']['thumbnailLink']
+          # instance.thumbnail_link = '{}&version={}'.format(
+          #     item['file']['thumbnailLink'],
+          #     item['file']['version'],  # add timestamp to avoid caching
+          # )
+          instance.save()
+          print instance.title, instance.thumbnail_link
+
+      count += len(items)
+      params['pageToken'] = changes.get('nextPageToken')
+      if not params['pageToken']:
+        logging.info('{} changes for {}'.format(count, self.user.email))
+        break
+
+    self.drive_change_id = changes.get('largestChangeId')
+    self.save()
